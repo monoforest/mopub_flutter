@@ -48,14 +48,14 @@ dependencies {
         transitive = true
     }
 
-implementation 'com.adcolony:sdk:4.2.2'
-implementation 'com.mopub.mediation:adcolony:4.2.2.0'
-implementation 'com.tapjoy:tapjoy-android-sdk:12.4.0@aar'
-implementation 'com.mopub.mediation:tapjoy:12.4.0.0'
-implementation 'com.tapjoy:tapjoy-android-sdk:12.6.1@aar'
-implementation 'com.mopub.mediation:tapjoy:12.6.1.0'
+// implementation 'com.adcolony:sdk:4.2.2'
+// implementation 'com.mopub.mediation:adcolony:4.2.2.0'
+// implementation 'com.tapjoy:tapjoy-android-sdk:12.4.0@aar'
+// implementation 'com.mopub.mediation:tapjoy:12.4.0.0'
+// implementation 'com.tapjoy:tapjoy-android-sdk:12.6.1@aar'
+// implementation 'com.mopub.mediation:tapjoy:12.6.1.0'
 implementation 'com.google.android.gms:play-services-ads:19.3.0'
-implementation 'com.mopub.mediation:admob:19.3.0.2'
+// implementation 'com.mopub.mediation:admob:19.3.0.2'
 
 }
 
