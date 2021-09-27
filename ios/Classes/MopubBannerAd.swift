@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import MoPub
+import MoPubSDK
 
 class MoPubBannerAd : NSObject, FlutterPlatformView {
     
@@ -53,6 +53,12 @@ class MoPubBannerAd : NSObject, FlutterPlatformView {
                 if autoRefresh { adView!.startAutomaticallyRefreshingContents() }
                 return view
             }()
+//            adView!.translatesAutoresizingMaskIntoConstraints = true
+//            adView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+            adView!.translatesAutoresizingMaskIntoConstraints = true
+            adView!.autoresizingMask = [.flexibleWidth]
+            
             adView!.loadAd(withMaxAdSize: getBannerAdSize(height: height))
         }
         return adView
@@ -63,11 +69,13 @@ class MoPubBannerAd : NSObject, FlutterPlatformView {
         if height >= 280 {
             return kMPPresetMaxAdSize280Height
         } else if height >= 250 {
-            return kMPPresetMaxAdSize250Height
+//            return kMPPresetMaxAdSize250Height
+            return CGSize(width: 320.0, height: 250.0)
         } else if height >= 90 {
             return kMPPresetMaxAdSize90Height
         } else if height >= 50 {
-            return kMPPresetMaxAdSize50Height
+//            return kMPPresetMaxAdSize50Height
+            return CGSize(width: 320.0, height: 50.0)
         } else {
             return kMPPresetMaxAdSizeMatchFrame
         }

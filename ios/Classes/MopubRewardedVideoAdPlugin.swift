@@ -6,13 +6,13 @@
 //
 
 import Foundation
-import MoPub
+import MoPubSDK
 
 public class MopubRewardedVideoAdPlugin: NSObject, FlutterPlugin {
     
     fileprivate var pluginRegistrar: FlutterPluginRegistrar?
 //    Need to keep strong reference to delegate because MoPub by default keeps weak reference
-    fileprivate var delegate: MPRewardedVideoDelegate?
+    fileprivate var delegate: MPRewardedAdsDelegate?
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = MopubRewardedVideoAdPlugin()
@@ -27,10 +27,10 @@ public class MopubRewardedVideoAdPlugin: NSObject, FlutterPlugin {
         
         switch call.method {
         case MopubConstants.SHOW_REWARDED_VIDEO_METHOD:
-            if(MPRewardedVideo.hasAdAvailable(forAdUnitID: adUnitId)) {
-                let reward = MPRewardedVideo.selectedReward(forAdUnitID: adUnitId)
+            if(MPRewardedAds.hasAdAvailable(forAdUnitID: adUnitId)) {
+                let reward = MPRewardedAds.selectedReward(forAdUnitID: adUnitId)
                 let rootViewController = UIApplication.shared.keyWindow?.rootViewController
-                MPRewardedVideo.presentAd(forAdUnitID: adUnitId, from: rootViewController, with: reward)
+                MPRewardedAds.presentRewardedAd(forAdUnitID: adUnitId, from: rootViewController, with: reward)
             }
             result(nil)
             break;
@@ -38,14 +38,14 @@ public class MopubRewardedVideoAdPlugin: NSObject, FlutterPlugin {
             let channelName = "\(MopubConstants.REWARDED_VIDEO_CHANNEL)_\(adUnitId)"
             let adChannel = FlutterMethodChannel(name: channelName, binaryMessenger: pluginRegistrar!.messenger())
             self.delegate = MopubRewardedVideoDelegate(channel: adChannel)
-            MPRewardedVideo.removeDelegate(forAdUnitId: adUnitId)
-            MPRewardedVideo.setDelegate(delegate, forAdUnitId: adUnitId)
-            MPRewardedVideo.loadAd(withAdUnitID: adUnitId, withMediationSettings: nil)
             
+            MPRewardedAds.removeDelegate(forAdUnitId: adUnitId)
+            MPRewardedAds.setDelegate(delegate, forAdUnitId: adUnitId)
+            MPRewardedAds.loadRewardedAd(withAdUnitID: adUnitId, withMediationSettings: nil)
             result(nil)
             break
         case MopubConstants.HAS_REWARDED_VIDEO_METHOD:
-            let hasAd = MPRewardedVideo.hasAdAvailable(forAdUnitID: adUnitId)
+            let hasAd = MPRewardedAds.hasAdAvailable(forAdUnitID: adUnitId)
             result(hasAd);
             break;
         default:
@@ -54,7 +54,7 @@ public class MopubRewardedVideoAdPlugin: NSObject, FlutterPlugin {
     }
 }
 
-class MopubRewardedVideoDelegate: NSObject, MPRewardedVideoDelegate {
+class MopubRewardedVideoDelegate: NSObject, MPRewardedAdsDelegate {
     let channel: FlutterMethodChannel
     var didReceiveReward: Bool
     var rewardAmount: NSNumber
@@ -65,33 +65,35 @@ class MopubRewardedVideoDelegate: NSObject, MPRewardedVideoDelegate {
         self.rewardAmount = 0
     }
     
-    func rewardedVideoAdDidLoad(forAdUnitID adUnitID: String!) {
+    func rewardedAdDidLoad(forAdUnitID adUnitID: String!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         channel.invokeMethod(MopubConstants.LOADED_METHOD, arguments: args)
     }
     
-    func rewardedVideoAdDidFailToLoad(forAdUnitID adUnitID: String!, error: Error!) {
+    func rewardedAdDidFailToLoad(forAdUnitID adUnitID: String!, error: Error!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         args["errorCode"] = error.localizedDescription
         channel.invokeMethod(MopubConstants.ERROR_METHOD, arguments: args)
     }
     
-    func rewardedVideoAdWillAppear(forAdUnitID adUnitID: String!) {    
+    func rewardedAdWillPresent(forAdUnitID adUnitID: String!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         channel.invokeMethod(MopubConstants.DISPLAYED_METHOD, arguments: args)
     }
+
     
-    func rewardedVideoAdDidFailToPlay(forAdUnitID adUnitID: String!, error: Error!) {
+    func rewardedAdDidFailToShow(forAdUnitID adUnitID: String!, error: Error!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         args["errorCode"] = error.localizedDescription
         channel.invokeMethod(MopubConstants.REWARDED_PLAYBACK_ERROR, arguments: args)
     }
     
-    func rewardedVideoAdDidDisappear(forAdUnitID adUnitID: String!) {
+    
+    func rewardedAdDidDismiss(forAdUnitID adUnitID: String!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         channel.invokeMethod(MopubConstants.DISMISSED_METHOD, arguments: args)
@@ -103,22 +105,19 @@ class MopubRewardedVideoDelegate: NSObject, MPRewardedVideoDelegate {
         }
     }
     
-    func rewardedVideoAdDidReceiveTapEvent(forAdUnitID adUnitID: String!) {
+    func rewardedAdDidReceiveTapEvent(forAdUnitID adUnitID: String!) {
         var args:[String:Any] = [:]
         args["adUnitId"] = adUnitID
         channel.invokeMethod(MopubConstants.CLICKED_METHOD, arguments: args)
     }
     
-    func rewardedVideoAdShouldReward(forAdUnitID adUnitID: String!, reward: MPRewardedVideoReward!) {
-        self.didReceiveReward = true;
+    func rewardedAdShouldReward(forAdUnitID adUnitID: String!, reward: MPReward!) {
+        self.didReceiveReward = true
         self.rewardAmount = reward.amount
     }
     
-    func rewardedVideoAdDidExpire(forAdUnitID adUnitID: String!) {
-        MPRewardedVideo.loadAd(withAdUnitID: adUnitID, withMediationSettings: nil)
+        
+    func rewardedAdDidExpire(forAdUnitID adUnitID: String!) {
+        MPRewardedAds.loadRewardedAd(withAdUnitID: adUnitID, withMediationSettings: nil)
     }
-    
-    
-    
-    
 }
